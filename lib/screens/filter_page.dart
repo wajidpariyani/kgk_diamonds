@@ -8,6 +8,22 @@ import '../bloc/filter/filter_state.dart';
 import '../components/custom_dropdown.dart';
 
 class FilterPage extends StatelessWidget {
+  final List<Map<String, double>> caratRanges = [
+    {'0.30 - 0.39': 0.30},
+    {'0.40 - 0.49': 0.40},
+    {'0.50 - 0.59': 0.50},
+    {'0.60 - 0.69': 0.60},
+    {'0.70 - 0.79': 0.70},
+    {'0.80 - 0.89': 0.80},
+    {'0.90 - 0.99': 0.90},
+    {'1.00 - 1.49': 1.00},
+    {'1.50 - 1.99': 1.50},
+    {'2.00 - 2.99': 2.00},
+    {'3.00 - 3.99': 3.00},
+    {'4.00 - 4.99': 4.00},
+    {'5.00+': 5.00},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,6 +114,7 @@ class FilterPage extends StatelessWidget {
   }
 
   void _showCaratRangeBottomSheet(BuildContext context, FilterState state) {
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -110,60 +127,35 @@ class FilterPage extends StatelessWidget {
                 'Select Carat Range',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              RadioListTile<double>(
-                title: Text('0.30 - 0.39'),
-                value: 0.30,
-                groupValue: state.caratFrom,
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<FilterBloc>().add(UpdateCarat(value, 0.39));
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-              RadioListTile<double>(
-                title: Text('0.40 - 0.49'),
-                value: 0.40,
-                groupValue: state.caratFrom,
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<FilterBloc>().add(UpdateCarat(value, 0.49));
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-              RadioListTile<double>(
-                title: Text('0.50 - 0.99'),
-                value: 0.50,
-                groupValue: state.caratFrom,
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<FilterBloc>().add(UpdateCarat(value, 0.99));
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-              RadioListTile<double>(
-                title: Text('1.00 - 1.49'),
-                value: 1.00,
-                groupValue: state.caratFrom,
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<FilterBloc>().add(UpdateCarat(value, 1.49));
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-              RadioListTile<double>(
-                title: Text('5.00+'),
-                value: 5.00,
-                groupValue: state.caratFrom,
-                onChanged: (value) {
-                  if (value != null) {
-                    context.read<FilterBloc>().add(UpdateCarat(value, 5.00));
-                    Navigator.pop(context);
-                  }
-                },
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: caratRanges.length,
+                  itemBuilder: (context, index) {
+                    final range = caratRanges[index].keys.first;
+                    final value = caratRanges[index][range]!;
+
+                    return RadioListTile<double>(
+                      title: Text(range),
+                      value: value,
+                      groupValue: state.caratFrom,
+                      onChanged: (selectedValue) {
+                        if (selectedValue != null) {
+                          double upperLimit = index < 7
+                              ? selectedValue + 0.09
+                              : index < caratRanges.length - 1
+                              ? selectedValue + 0.99
+                              : selectedValue;
+
+                          context
+                              .read<FilterBloc>()
+                              .add(UpdateCarat(selectedValue, upperLimit));
+                          Navigator.pop(context);
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
